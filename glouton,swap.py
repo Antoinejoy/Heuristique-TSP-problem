@@ -20,7 +20,7 @@ data = []
 for i in range(1,len(lignes)-1):
     a = lignes[i].split(' ')
     a[1] = int(a[1][:-1])
-    a[0] = int(a[0])@
+    a[0] = int(a[0])
     data.append(a)
 
 
