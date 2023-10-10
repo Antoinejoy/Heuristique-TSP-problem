@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import time
 # Ouvrir un fichier texte en mode lecture
 
-nom_fichier = "/Users/bagafoufabrice/Downloads/Pb3.txt"
+nom_fichier = "/Users/bagafoufabrice/Downloads/Pb1.txt"
 
 try:
     with open(nom_fichier, 'r') as fichier:
