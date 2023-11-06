@@ -164,7 +164,8 @@ def swap_premier_dernier(solution,distance):
 
         compt += 1
         if compt == (len(solution)-1) and not swap_reussi :
-            ran = np.random.rand(2) * (len(solution)-2 )// 1 + 1
+            ran = (np.random.rand(2) * (len(solution)-3)// 1) + 1
+
             x = int(ran[0])
             y = int(ran[1])
             dist1_av = calcul_distance(solution[x], solution[x + 1])
@@ -207,9 +208,11 @@ def swap_force_max(solution,distance,indice_max) :
     compteur = 0
     while not swap_reussi and compteur<len(solution):
         #print('bon i')
-        i = np.random.rand(1) * (len(solution) - 2) // 1 + 1
+        i = np.random.rand(1) * (len(solution) - 3) // 1 + 1
+        if int(i[0]) == 0:
+            i = [1]
         i = int(i[0])
-
+        #print(indice_max,i,len(solution))
         dist1_av = calcul_distance(solution[indice_max], solution[indice_max + 1])
         dist3_av = calcul_distance(solution[i], solution[i + 1])
         dist2_av = calcul_distance(solution[indice_max], solution[indice_max - 1])
@@ -365,7 +368,7 @@ def Depart_arrive(grp_av,groupe_apr):
     :return: deux points els proches de chaque groupe
     '''
 
-    distance_min = float('inf')
+    distance_min = 10000
     point1_plus_proche = None
     point2_plus_proche = None
     for point1 in grp_av:
@@ -417,21 +420,25 @@ def optimisation_des_groupes(groupe_ordonne,liste_depart_arriv):
     dist_total = 0
     for i in range(len(groupe_ordonne)):
         depart = liste_depart_arriv[i - 1][1]
+
         arrive = liste_depart_arriv[i][0]
+
         depart = cherche_point(groupe_ordonne[i], depart)
         arrive = cherche_point(groupe_ordonne[i], arrive)
+
         sol_gp1, dist_gp1 = glouton_depart_arrive(groupe_ordonne[i], depart, arrive)
         # print(sol_gp1[0],sol_gp1[-1])
+        #print(sol_gp1[0], sol_gp1[-1])
         end_distance_gp1, end_solution_gp1 = swap_premier_dernier(sol_gp1, dist_gp1)
-
+        #print(end_solution_gp1[0], end_solution_gp1[-1])
         #otpimisation de la distance max
         distances = [calcul_distance(end_solution_gp1[i], end_solution_gp1[i+1]) for i in range(len(end_solution_gp1)-1)]
 
         index_max = distances.index(max(distances))
         if index_max==0 :
-            index_max == 1
+            index_max = 1
         if index_max==len(distances)-1 :
-            index_max == index_max - 2
+            index_max = index_max - 2
 
         compt = 0
         while distances[index_max]>(C.FORCED_MAX_SWAP_PRECISION*sum(distances)/len(distances)) and compt<C.FORCED_MAX_SWAP_TRY :
@@ -442,17 +449,19 @@ def optimisation_des_groupes(groupe_ordonne,liste_depart_arriv):
 
             index_max = distances.index(max(distances))
             if index_max == 0:
-                index_max == 1
+                index_max = 1
             if index_max == len(distances) - 1:
-                index_max == index_max - 2
+                index_max = index_max - 2
 
             compt = compt + 1
+            #print('swap max',end_solution_gp1[0], end_solution_gp1[-1])
         liste_sol.append(end_solution_gp1)
         distances = [calcul_distance(end_solution_gp1[i], end_solution_gp1[i + 1]) for i in
                          range(len(end_solution_gp1) - 1)]
         #print('ecart distance = ',end_distance_gp1-sum(distances))
         dist_total += end_distance_gp1
-        # print(end_solution_gp1[0], end_solution_gp1[-1])
+        #print(end_solution_gp1[0], end_solution_gp1[-1])
+
         Sol_gp = Sol_gp + end_solution_gp1
     return Sol_gp,dist_total,liste_sol
 
@@ -474,7 +483,7 @@ for i in range(1,2) :
 
         # Affichez le nuage de points
 
-        print(liste_depart)
+        #print(liste_depart)
         try :
             sol,distance,liste_sol = optimisation_des_groupes(groupe_ordonne,liste_depart)
             if k == 4 :
@@ -488,8 +497,9 @@ for i in range(1,2) :
             dist_verif = [calcul_distance(sol[i], sol[i + 1]) for i in
                          range(len(sol) - 1)]
             #print('distance verifié',sum(dist_verif))
-            print(f'resultat pour {k} clusters : ', sum(dist_verif))
+            #print(f'resultat pour {k} clusters : ', sum(dist_verif))
             list_score.append(sum(dist_verif))
+            #print(sol)
         except Exception as e :
             print(e)
             continue
