@@ -486,10 +486,17 @@ def organisation_groupes(centroids, groupe):
         dist_data.append(dist)
 
     end_distance, end_solution = swap_descente_complete(sol_opti, min)
+<<<<<<< HEAD
     # x, y = zip(*end_solution)
     # # Tracez les points
     # plt.plot(x, y, marker="o", linestyle="-")
     # plt.show()
+=======
+    #x, y = zip(*end_solution)
+    # Tracez les points
+    #plt.plot(x, y, marker='o', linestyle='-')
+    #plt.show()
+>>>>>>> 0e741c6c095baf9819df61528bad73907bb62038
     groupe_ordonne = [0] * len(groupe)
     end_sol_temp = [list(arr) for arr in end_solution]
     for i in range(len(end_sol_temp)):
