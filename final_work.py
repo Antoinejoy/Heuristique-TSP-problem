@@ -102,10 +102,12 @@ def glouton_depart_arrive(donne, depart, arrive):
 
     config.append(donne[arrive])
 
-    dist_verif = [calcul_distance(config[i], config[i + 1]) for i in
-                  range(len(config) - 1)]
+    dist_verif = [
+        calcul_distance(config[i], config[i + 1]) for i in range(len(config) - 1)
+    ]
 
-    return config,sum(dist_verif)
+    return config, sum(dist_verif)
+
 
 def swap_descente_complete(solution, distance):
     compt = 0
@@ -483,17 +485,10 @@ def organisation_groupes(centroids, groupe):
         dist_data.append(dist)
 
     end_distance, end_solution = swap_descente_complete(sol_opti, min)
-<<<<<<< HEAD
     # x, y = zip(*end_solution)
-    # # Tracez les points
-    # plt.plot(x, y, marker="o", linestyle="-")
-    # plt.show()
-=======
-    #x, y = zip(*end_solution)
     # Tracez les points
-    #plt.plot(x, y, marker='o', linestyle='-')
-    #plt.show()
->>>>>>> 0e741c6c095baf9819df61528bad73907bb62038
+    # plt.plot(x, y, marker='o', linestyle='-')
+    # plt.show()
     groupe_ordonne = [0] * len(groupe)
     end_sol_temp = [list(arr) for arr in end_solution]
     for i in range(len(end_sol_temp)):
@@ -659,14 +654,15 @@ list_score = []
 nombre_de_villes, data, distances = import_fichier(3)
 for k in range(C.MIN_CLUSTER_RANGE, C.MAX_CLUSTER_RANGE):
     start_time = time.time()
-    centroids,labels,groupe = clusturing(k,data)
-    groupe_ordonne = organisation_groupes(centroids,groupe)
+    centroids, labels, groupe = clusturing(k, data)
+    groupe_ordonne = organisation_groupes(centroids, groupe)
     liste_depart = liste_depart_arrive(groupe_ordonne)
 
-    try :
-        sol,distance,liste_sol = optimisation_des_groupes(groupe_ordonne,liste_depart)
-        dist_verif = [calcul_distance(sol[i], sol[i + 1]) for i in
-                         range(len(sol) - 1)]
+    try:
+        sol, distance, liste_sol = optimisation_des_groupes(
+            groupe_ordonne, liste_depart
+        )
+        dist_verif = [calcul_distance(sol[i], sol[i + 1]) for i in range(len(sol) - 1)]
         end_time = time.time()
         list_score.append([sum(dist_verif), k, end_time - start_time])
         Liste_point_bani = []
