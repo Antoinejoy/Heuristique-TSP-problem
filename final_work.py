@@ -4,6 +4,9 @@ import random
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 import Constantes as C
+import time
+# points a ne pas prendre
+Liste_point_bani = []
 
 def permutation(config,i,j):
     '''
@@ -238,15 +241,97 @@ def swap_force_max(solution,distance,indice_max) :
             print('swap opti max reussi, ecart = ',distance - distance_swap)
             distance = distance_swap
             swap_reussi = True
+            solution = sol_swap
         compteur += 1
 
-    dist_verif = [calcul_distance(sol_swap[i], sol_swap[i + 1]) for i in
-                  range(len(sol_swap) - 1)]
+    dist_verif = [calcul_distance(solution[i], solution[i + 1]) for i in
+                  range(len(solution) - 1)]
     sum_dist = sum(dist_verif)
 
-    return sum_dist, sol_swap
-            
-                
+    return sum_dist, solution
+
+def swap_forced_deg3(solution,distance,indice_max):
+
+    swap_reussi = False
+    compteur = 0
+    indice_max = np.random.rand(1) * (len(solution) - 3) // 1 + 1
+    if int(indice_max[0]) == 0:
+        indice_max = [1]
+    indice_max = int(indice_max[0])
+    while not swap_reussi and compteur < len(solution):
+        # print('bon i')
+        i = np.random.rand(1) * (len(solution) - 3) // 1 + 1
+        if int(i[0]) == 0:
+            i = [1]
+        i = int(i[0])
+        # print(indice_max,i,len(solution))
+        dist1_av = calcul_distance(solution[indice_max], solution[indice_max + 1])
+        dist3_av = calcul_distance(solution[i], solution[i + 1])
+        dist2_av = calcul_distance(solution[indice_max], solution[indice_max - 1])
+        dist4_av = calcul_distance(solution[i], solution[i - 1])
+
+        somme_des_dists_1 = dist1_av + dist2_av + dist3_av + dist4_av
+
+        # permutation
+        config_tempo = permutation(solution, indice_max, i)
+
+        dist1 = calcul_distance(config_tempo[indice_max], config_tempo[indice_max + 1])
+        dist3 = calcul_distance(config_tempo[i], config_tempo[i + 1])
+        dist2 = calcul_distance(config_tempo[indice_max], config_tempo[indice_max - 1])
+        dist4 = calcul_distance(config_tempo[i], config_tempo[i - 1])
+
+        somme_des_dists_2 = dist1 + dist2 + dist3 + dist4
+
+        nouvelle_distance = distance - somme_des_dists_1 + somme_des_dists_2
+
+        #deg 2
+        while True :
+            i = np.random.rand(1) * (len(config_tempo) - 3) // 1 + 1
+            if int(i[0]) == 0:
+                i = [1]
+            i = int(i[0])
+
+            j = np.random.rand(1) * (len(config_tempo) - 3) // 1 + 1
+            if int(j[0]) == 0:
+                j = [1]
+            j = int(j[0])
+
+            if i!=j:
+                break
+
+
+        dist1_av = calcul_distance(solution[j], solution[j + 1])
+        dist3_av = calcul_distance(solution[i], solution[i + 1])
+        dist2_av = calcul_distance(solution[j], solution[j - 1])
+        dist4_av = calcul_distance(solution[i], solution[i - 1])
+
+        somme_des_dists_1 = dist1_av + dist2_av + dist3_av + dist4_av
+
+        config_tempo = permutation(config_tempo, j, i)
+
+        dist1 = calcul_distance(config_tempo[j], config_tempo[j + 1])
+        dist3 = calcul_distance(config_tempo[i], config_tempo[i + 1])
+        dist2 = calcul_distance(config_tempo[j], config_tempo[j - 1])
+        dist4 = calcul_distance(config_tempo[i], config_tempo[i - 1])
+
+        somme_des_dists_2 = dist1 + dist2 + dist3 + dist4
+
+        nouvelle_distance = nouvelle_distance - somme_des_dists_1 + somme_des_dists_2
+
+        distance_swap, sol_swap = swap_premier_dernier(config_tempo, nouvelle_distance)
+
+        if distance_swap < distance:
+            print('swap deg 3 reussi, ecart = ', distance - distance_swap)
+            distance = distance_swap
+            swap_reussi = True
+            solution = sol_swap
+        compteur += 1
+
+    dist_verif = [calcul_distance(solution[i], solution[i + 1]) for i in
+                  range(len(solution) - 1)]
+    sum_dist = sum(dist_verif)
+
+    return sum_dist, solution
 
 def plot_resul(data,labels,inital,liste_solution):
     '''
@@ -302,6 +387,32 @@ def import_fichier(num) :
     distances = [[calcul_distance(villes[i], villes[j]) for j in range(num_villes)] for i in range(num_villes)]
 
     return num_villes,villes,distances
+
+def open_instance_path(path):
+    """
+    :param path: path of the instance
+    :return:
+    """
+    try:
+        with open(path, 'r') as fichier:
+            lignes = fichier.readlines()
+
+    except FileNotFoundError:
+        print(f"Le fichier n'a pas été trouvé.")
+    except Exception as e:
+        print(f"Une erreur s'est produite : {str(e)}")
+
+    villes = []
+    for i in range(1, len(lignes) - 1):
+        a = lignes[i].split(' ')
+        a[1] = int(a[1][:-1])
+        a[0] = int(a[0])
+        villes.append(a)
+
+    num_villes = len(villes)
+    distances = [[calcul_distance(villes[i], villes[j]) for j in range(num_villes)] for i in range(num_villes)]
+
+    return num_villes, villes, distances
 
 def clusturing(K,donne) :
     '''
@@ -362,6 +473,7 @@ def organisation_groupes(centroids,groupe):
     return groupe_ordonne
 
 def Depart_arrive(grp_av,groupe_apr):
+    global Liste_point_bani
     '''
     :param grp_av: groupe 1
     :param groupe_apr: groupe 2
@@ -372,10 +484,16 @@ def Depart_arrive(grp_av,groupe_apr):
     point1_plus_proche = None
     point2_plus_proche = None
     for point1 in grp_av:
+        if point1 in Liste_point_bani :
+            continue
         for point2 in groupe_apr:
+            if point2 in Liste_point_bani :
+                continue
             dist = calcul_distance(point1, point2)
-            if dist < distance_min:
+            if dist < distance_min :
                 distance_min = dist
+                #Liste_point_bani.append(point1)
+                #Liste_point_bani.append(point2)
                 point1_plus_proche = point1
                 point2_plus_proche = point2
     return [point1_plus_proche,point2_plus_proche]
@@ -427,11 +545,9 @@ def optimisation_des_groupes(groupe_ordonne,liste_depart_arriv):
         arrive = cherche_point(groupe_ordonne[i], arrive)
 
         sol_gp1, dist_gp1 = glouton_depart_arrive(groupe_ordonne[i], depart, arrive)
-        # print(sol_gp1[0],sol_gp1[-1])
-        #print(sol_gp1[0], sol_gp1[-1])
+
         end_distance_gp1, end_solution_gp1 = swap_premier_dernier(sol_gp1, dist_gp1)
-        #print(end_solution_gp1[0], end_solution_gp1[-1])
-        #otpimisation de la distance max
+
         distances = [calcul_distance(end_solution_gp1[i], end_solution_gp1[i+1]) for i in range(len(end_solution_gp1)-1)]
 
         index_max = distances.index(max(distances))
@@ -443,9 +559,11 @@ def optimisation_des_groupes(groupe_ordonne,liste_depart_arriv):
         compt = 0
         while distances[index_max]>(C.FORCED_MAX_SWAP_PRECISION*sum(distances)/len(distances)) and compt<C.FORCED_MAX_SWAP_TRY :
 
-            end_distance_gp1,end_solution_gp1 = swap_force_max(end_solution_gp1,end_distance_gp1,index_max)
+            previous_dist = end_distance_gp1
+
+            end_distance_gp1, end_solution_gp1 = swap_forced_deg3(end_solution_gp1, end_distance_gp1, index_max)
             distances = [calcul_distance(end_solution_gp1[i], end_solution_gp1[i + 1]) for i in
-                         range(len(end_solution_gp1) - 1)]
+                             range(len(end_solution_gp1) - 1)]
 
             index_max = distances.index(max(distances))
             if index_max == 0:
@@ -453,14 +571,27 @@ def optimisation_des_groupes(groupe_ordonne,liste_depart_arriv):
             if index_max == len(distances) - 1:
                 index_max = index_max - 2
 
+            # Si le swap deg 3 fonctionne on optimise le max
+            if previous_dist>end_distance_gp1 :
+                #print('opti du max')
+                end_distance_gp1, end_solution_gp1 = swap_force_max(end_solution_gp1, end_distance_gp1, index_max)
+                distances = [calcul_distance(end_solution_gp1[i], end_solution_gp1[i + 1]) for i in
+                             range(len(end_solution_gp1) - 1)]
+                index_max = distances.index(max(distances))
+
+                if index_max == 0:
+                    index_max = 1
+                if index_max == len(distances) - 1:
+                    index_max = index_max - 2
+
             compt = compt + 1
-            #print('swap max',end_solution_gp1[0], end_solution_gp1[-1])
+            #print('compteur : ', compt)
+
+        if compt == C.FORCED_MAX_SWAP_TRY:
+            print('au bout des essaies')
+
         liste_sol.append(end_solution_gp1)
-        distances = [calcul_distance(end_solution_gp1[i], end_solution_gp1[i + 1]) for i in
-                         range(len(end_solution_gp1) - 1)]
-        #print('ecart distance = ',end_distance_gp1-sum(distances))
         dist_total += end_distance_gp1
-        #print(end_solution_gp1[0], end_solution_gp1[-1])
 
         Sol_gp = Sol_gp + end_solution_gp1
     return Sol_gp,dist_total,liste_sol
@@ -471,40 +602,36 @@ best_cluster = 0
 best_scores = []
 list_score = []
 
-for i in range(1,2) :
-    nombre_de_villes, data, distances = import_fichier(i)
-    for k in range(C.MIN_CLUSTER_RANGE,C.MAX_CLUSTER_RANGE):
 
-        centroids,labels,groupe = clusturing(k,data)
-        groupe_ordonne = organisation_groupes(centroids,groupe)
-        liste_depart = liste_depart_arrive(groupe_ordonne)
+nombre_de_villes, data, distances = import_fichier(3)
+for k in range(C.MIN_CLUSTER_RANGE,C.MAX_CLUSTER_RANGE):
+    start_time = time.time()
+    centroids,labels,groupe = clusturing(k,data)
+    groupe_ordonne = organisation_groupes(centroids,groupe)
+    liste_depart = liste_depart_arrive(groupe_ordonne)
+    print(len(liste_depart))
+    liste_aplatie = [item for sublist in liste_depart for item in sublist]
+    points_uniques = set()
 
+    # Utilisez une boucle pour itérer à travers la liste et ajouter les points uniques à l'ensemble
+    for point in liste_aplatie:
+        points_uniques.add((point[0],point[1]))
 
+    # Utilisez len() pour obtenir le nombre de points uniques
+    nombre_de_points_uniques = len(points_uniques)
 
-        # Affichez le nuage de points
+    print(nombre_de_points_uniques)
 
-        #print(liste_depart)
-        try :
-            sol,distance,liste_sol = optimisation_des_groupes(groupe_ordonne,liste_depart)
-            if k == 4 :
-                best_cluster_score =  distance
-                best_cluster = k
-            else :
-                if distance<best_cluster_score :
-                    best_cluster_score = distance
-                    best_cluster = k
-
-            dist_verif = [calcul_distance(sol[i], sol[i + 1]) for i in
+    try :
+        sol,distance,liste_sol = optimisation_des_groupes(groupe_ordonne,liste_depart)
+        dist_verif = [calcul_distance(sol[i], sol[i + 1]) for i in
                          range(len(sol) - 1)]
-            #print('distance verifié',sum(dist_verif))
-            #print(f'resultat pour {k} clusters : ', sum(dist_verif))
-            list_score.append(sum(dist_verif))
-            #print(sol)
-        except Exception as e :
-            print(e)
-            continue
-    best_scores.append([best_cluster_score,best_cluster])
-
+        end_time = time.time()
+        list_score.append([sum(dist_verif),k,end_time - start_time])
+        Liste_point_bani = []
+    except Exception as e :
+        print(e)
+        continue
 
 print(list_score)
 plot_resul(sol,labels,data,liste_sol)
