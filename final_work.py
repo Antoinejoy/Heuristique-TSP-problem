@@ -86,10 +86,8 @@ def glouton_depart_arrive(donne,depart,arrive):
     liste_entiers.remove(arrive)
     compt = 0
     config = [donne[depart]]
-    distance = 0
     while compt < len(donne) - 2:
         min, indice = plusproche_voisin(donne, depart, liste_entiers)
-        #distance += min
         compt += 1
         liste_entiers.remove(indice)
         depart = indice
@@ -99,6 +97,7 @@ def glouton_depart_arrive(donne,depart,arrive):
 
     dist_verif = [calcul_distance(config[i], config[i + 1]) for i in
                   range(len(config) - 1)]
+
     return config,sum(dist_verif)
 
 def swap_descente_complete(solution,distance):
@@ -496,9 +495,9 @@ def Depart_arrive(grp_av,groupe_apr):
             dist = calcul_distance(point1, point2)
             if dist < distance_min :
                 distance_min = dist
-
                 point1_plus_proche = point1
                 point2_plus_proche = point2
+
     Liste_point_bani.append(point1_plus_proche)
     Liste_point_bani.append(point2_plus_proche)
     return [point1_plus_proche,point2_plus_proche]
@@ -612,11 +611,8 @@ nombre_de_villes, data, distances = import_fichier(3)
 for k in range(C.MIN_CLUSTER_RANGE,C.MAX_CLUSTER_RANGE):
     start_time = time.time()
     centroids,labels,groupe = clusturing(k,data)
-
-
     groupe_ordonne = organisation_groupes(centroids,groupe)
     liste_depart = liste_depart_arrive(groupe_ordonne)
-
 
     try :
         sol,distance,liste_sol = optimisation_des_groupes(groupe_ordonne,liste_depart)
