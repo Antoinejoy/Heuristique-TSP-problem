@@ -460,7 +460,10 @@ def organisation_groupes(centroids,groupe):
         dist_data.append(dist)
 
     end_distance, end_solution = swap_descente_complete(sol_opti, min)
-
+    x, y = zip(*end_solution)
+    # Tracez les points
+    plt.plot(x, y, marker='o', linestyle='-')
+    plt.show()
     groupe_ordonne = [0] * len(groupe)
     end_sol_temp = [list(arr) for arr in end_solution]
     for i in range(len(end_sol_temp)):
@@ -480,6 +483,7 @@ def Depart_arrive(grp_av,groupe_apr):
     :return: deux points els proches de chaque groupe
     '''
 
+    print('nombre de point banni ',len(Liste_point_bani))
     distance_min = 10000
     point1_plus_proche = None
     point2_plus_proche = None
@@ -492,10 +496,11 @@ def Depart_arrive(grp_av,groupe_apr):
             dist = calcul_distance(point1, point2)
             if dist < distance_min :
                 distance_min = dist
-                #Liste_point_bani.append(point1)
-                #Liste_point_bani.append(point2)
+
                 point1_plus_proche = point1
                 point2_plus_proche = point2
+    Liste_point_bani.append(point1_plus_proche)
+    Liste_point_bani.append(point2_plus_proche)
     return [point1_plus_proche,point2_plus_proche]
 
 def liste_depart_arrive(groupe):
@@ -607,20 +612,11 @@ nombre_de_villes, data, distances = import_fichier(3)
 for k in range(C.MIN_CLUSTER_RANGE,C.MAX_CLUSTER_RANGE):
     start_time = time.time()
     centroids,labels,groupe = clusturing(k,data)
+
+
     groupe_ordonne = organisation_groupes(centroids,groupe)
     liste_depart = liste_depart_arrive(groupe_ordonne)
-    print(len(liste_depart))
-    liste_aplatie = [item for sublist in liste_depart for item in sublist]
-    points_uniques = set()
 
-    # Utilisez une boucle pour itérer à travers la liste et ajouter les points uniques à l'ensemble
-    for point in liste_aplatie:
-        points_uniques.add((point[0],point[1]))
-
-    # Utilisez len() pour obtenir le nombre de points uniques
-    nombre_de_points_uniques = len(points_uniques)
-
-    print(nombre_de_points_uniques)
 
     try :
         sol,distance,liste_sol = optimisation_des_groupes(groupe_ordonne,liste_depart)
