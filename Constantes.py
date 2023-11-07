@@ -1,9 +1,9 @@
-#forced max swap parameters
+# forced max swap parameters
 FORCED_MAX_SWAP_PRECISION = 0.5
-FORCED_MAX_SWAP_TRY = 100
+FORCED_MAX_SWAP_TRY = 50
 
 # Cluster parameters
-MIN_CLUSTER_RANGE = 28
+MIN_CLUSTER_RANGE = 33
 MAX_CLUSTER_RANGE = 35
-#instance parameter
+# instance parameter
 INSTANCE_PATH = 0
